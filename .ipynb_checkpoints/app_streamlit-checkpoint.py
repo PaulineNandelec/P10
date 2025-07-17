@@ -6,7 +6,7 @@ st.title("Prédiction de l'authenticité des billets")
 
 fichier = st.file_uploader("Charger un fichier CSV", type=["csv"])
 if fichier is not None:
-    df = pd.read_csv(fichier)
+    df = pd.read_csv(fichier, index_col='id')
     # charger modèle
     modele = joblib.load("prediction_billet.pkl")
     predictions = modele.predict(df)

@@ -89,7 +89,7 @@ def display_factorial_planes(X_projected,
     Paramètres supplémentaires :
     - x_axis_desc : tuple(str, str) -> (positif, négatif) pour l'axe X
     - y_axis_desc : tuple(str, str) -> (positif, négatif) pour l'axe Y
-    - color_palette : liste de couleurs hexadécimales à utiliser pour les clusters
+    - color_palette : liste de couleurs ou dictionnaire {cluster: couleur}
     """
 
     import numpy as np
@@ -112,15 +112,25 @@ def display_factorial_planes(X_projected,
         unique_clusters = np.unique(clusters_arr)
         nb_clusters = len(unique_clusters)
 
-        if color_palette is not None:
-            # étendre la palette si nécessaire
-            extended_palette = (color_palette * ((nb_clusters // len(color_palette)) + 1))[:nb_clusters]
+        # Gestion palette
+        if isinstance(color_palette, dict):
+            # Palette dict {cluster: couleur}
+            cluster_colors = {}
+            for i, cluster in enumerate(unique_clusters):
+                if cluster in color_palette:
+                    cluster_colors[cluster] = color_palette[cluster]
+                else:
+                    # Si cluster non défini, on utilise une couleur par défaut
+                    default_color = f"C{i % 10}"  # cycle des 10 couleurs matplotlib
+                    cluster_colors[cluster] = default_color
         else:
-            # fallback palette matplotlib si aucune palette personnalisée
-            color_map = cm.get_cmap("Set1", nb_clusters)
-            extended_palette = [mcolors.to_hex(color_map(i)) for i in range(nb_clusters)]
-
-        cluster_colors = {cluster: extended_palette[i] for i, cluster in enumerate(unique_clusters)}
+            # Liste de couleurs (ou None)
+            if color_palette is not None:
+                extended_palette = (color_palette * ((nb_clusters // len(color_palette)) + 1))[:nb_clusters]
+            else:
+                color_map = cm.get_cmap("Set1", nb_clusters)
+                extended_palette = [mcolors.to_hex(color_map(i)) for i in range(nb_clusters)]
+            cluster_colors = {cluster: extended_palette[i] for i, cluster in enumerate(unique_clusters)}
 
         for cluster in unique_clusters:
             mask = clusters_arr == cluster
